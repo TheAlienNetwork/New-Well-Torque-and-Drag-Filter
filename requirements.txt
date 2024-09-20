@@ -44,3 +44,4 @@ PyQtWebEngine-Qt5==5.15.2
 python-dateutil==2.9.0.post0
 pyttsx3==2.91
 pytz==2024.1
+gunicorn
