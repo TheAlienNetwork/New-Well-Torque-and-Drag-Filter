@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Well Torque and Drag Filter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2e2e2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        form {
+            margin-bottom: 2rem;
+            background: #3c3c3c;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        input[type="file"] {
+            margin-right: 1rem;
+            background: #3c3c3c;
+            color: #e0e0e0;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        button, a.btn-download {
+            background: #3c3c3c;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #e0e0e0;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button:hover, a.btn-download:hover {
+            background-color: #4c4c4c;
+            box-shadow: 2px 2px 4px #1c1c1c, -2px -2px 4px #4c4c4c;
+        }
+
+        .dropdown-menu {
+            background: #3c3c3c;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+        }
+
+        .dropdown-menu a {
+            color: #e0e0e0;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #4c4c4c;
+        }
+
+        .table-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #3c3c3c;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+            overflow: hidden;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #3c3c3c;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #565656;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            color: #e0e0e0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4c4c4c;
+            color: #ffffff;
+        }
+
+        td {
+            color: #e0e0e0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #2e2e2e;
+        }
+
+        .graphs-container {
+            margin-top: 2rem;
+            background: #3c3c3c;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        .graphs-container .plot-item {
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 100%;
+            height: 600px;
+        }
+
+        iframe {
+            border: none;
+            border-radius: 12px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slider-container {
+            margin-top: 1rem;
+            background: #3c3c3c;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slider-container label {
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+        }
+
+        .plot-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .plot-container .plot-item {
+            flex: 1 1 calc(75% - 1rem);
+            box-sizing: border-box;
+        }
+
+        .navbar {
+            background: #2e2e2e;
+            border-bottom: 1px solid #3c3c3c;
+            box-shadow: 0 4px 8px #1c1c1c;
+        }
+
+        .navbar-brand {
+            color: #e0e0e0;
+        }
+
+        .navbar-brand:hover {
+            color: #c0c0c0;
+        }
+
+        .navbar-toggler-icon {
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij4KPHBhdGggZD0iTTEuNywyIEw0LjYsOCBMNiwyIEw2LjcsMS41IEwxLjcsMS4yIEwzLjcsNS41IEwzLjc5LDQuNTkiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVjbGFzc3M9InMiIHN0cm9rZS1kYXNoYXJlPSIxLjYiIHN0cm9rZS1vcGFjaXR5PSJub25lIiBzdHJva2UtbGluZWNhcHM9InJvdW5kIi8+Cjwvc3ZnPg==') no-repeat center;
+        }
+
+        .nav-tabs .nav-link {
+            background: #3c3c3c;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+            margin-right: 0.5rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: #4c4c4c;
+            color: #ffffff;
+            box-shadow: inset 2px 2px 4px #1c1c1c, inset -2px -2px 4px #4c4c4c;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">New Well Torque and Drag Filter</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#" target="_blank">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('diagnostics') }}" target="_blank">Diagnostics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" target="_blank">Coming Soon!!!</a>
+                </li>
+            </ul>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Menu
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{{ url_for('diagnostics') }}" target="_blank">Diagnostics</a>
+                <a class="dropdown-item" href="#" target="_blank">---</a>
+                <a class="dropdown-item" href="#" target="_blank">---</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <form action="/" method="post" enctype="multipart/form-data">
+            <div class="form-group slider-container">
+                <label for="file">Upload CSV File:</label>
+                <input type="file" class="form-control-file" id="file" name="file" required>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn-neomorphic">Analyze</button>
+                {% if file_info %}
+                    <a href="{{ url_for('download_file', filename=file_info.filtered_data) }}" class="btn-neomorphic btn-download" target="_blank">Download Filtered Data</a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if file_info %}
+            <div class="slider-container">
+                <label for="boundsFactor">Bounds Factor: <span id="boundsFactorValue">1.0</span></label>
+                <input type="range" id="boundsFactor" name="boundsFactor" min="0.1" max="3.0" step="0.1" value="1.0">
+            </div>
+        {% endif %}
+
+        {% if plots %}
+            <div class="graphs-container">
+                <h3>Torque and Drag Plots:</h3>
+                <ul class="nav nav-tabs" id="plotTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="filtered-tab" data-toggle="tab" href="#filtered" role="tab" aria-controls="filtered" aria-selected="true">Filtered Plots</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="unfiltered-tab" data-toggle="tab" href="#unfiltered" role="tab" aria-controls="unfiltered" aria-selected="false">Unfiltered Plots</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="plotTabsContent">
+                    <div class="tab-pane fade show active" id="filtered" role="tabpanel" aria-labelledby="filtered-tab">
+                        <div class="plot-container">
+                            {% for col, plot in plots.items() %}
+                                <div class="plot-item">
+                                    <iframe src="{{ url_for('view_plot', plot_name=plot.filtered) }}" loading="lazy"></iframe>
+                                    <p>{{ col }} (Filtered)</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="unfiltered" role="tabpanel" aria-labelledby="unfiltered-tab">
+                        <div class="plot-container">
+                            {% for col, plot in plots.items() %}
+                                <div class="plot-item">
+                                    <iframe src="{{ url_for('view_plot', plot_name=plot.unfiltered) }}" loading="lazy"></iframe>
+                                    <p>{{ col }} (Unfiltered)</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if tables %}
+            <div class="table-container mt-4">
+                {{ tables[0] | safe }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#boundsFactor').on('input', function() {
+                let boundsFactor = $(this).val();
+                $('#boundsFactorValue').text(boundsFactor);
+
+                $.post('/update_plots', { bounds_factor: boundsFactor }, function(data) {
+                    // Remove existing plots
+                    $('.plot-item').remove();
+
+                    // Render new plots
+                    $.each(data, function(col, filenames) {
+                        $('#filtered').append(`
+                            <div class="plot-item">
+                                <iframe src="/uploads/${filenames.filtered}" loading="lazy"></iframe>
+                                <p>${col} (Filtered)</p>
+                            </div>
+                        `);
+                        $('#unfiltered').append(`
+                            <div class="plot-item">
+                                <iframe src="/uploads/${filenames.unfiltered}" loading="lazy"></iframe>
+                                <p>${col} (Unfiltered)</p>
+                            </div>
+                        `);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

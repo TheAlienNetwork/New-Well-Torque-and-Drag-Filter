@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostics</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2e2e2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .progress-container {
+            margin-top: 2rem;
+            background: #3c3c3c;
+            border-radius: 12px;
+            box-shadow: 4px 4px 8px #1c1c1c, -4px -4px 8px #4c4c4c;
+            padding: 1rem;
+        }
+
+        .progress-bar {
+            position: relative;
+            height: 25px;
+            background: #3c3c3c;
+            border-radius: 12px;
+            box-shadow: inset 4px 4px 8px #1c1c1c, inset -4px -4px 8px #4c4c4c;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">Diagnostics</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/diagnostics">Diagnostics</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="progress-container">
+            <h3>Diagnostics</h3>
+            <div class="progress-bar" id="filtered-bar">
+                <span>Data Filtered: 0%</span>
+            </div>
+            <div class="progress-bar" id="accuracy-bar">
+                <span>Trend Accuracy: 0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        function updateDiagnostics() {
+            fetch('/diagnostics_data')
+                .then(response => response.json())
+                .then(data => {
+                    const filteredPercentage = data.filtered_percentage.toFixed(2);
+                    const trendAccuracy = data.trend_accuracy.toFixed(2);
+
+                    document.getElementById('filtered-bar').style.width = `${filteredPercentage}%`;
+                    document.querySelector('#filtered-bar span').innerText = `Data Filtered: ${filteredPercentage}%`;
+
+                    document.getElementById('accuracy-bar').style.width = `${trendAccuracy}%`;
+                    document.querySelector('#accuracy-bar span').innerText = `Trend Accuracy: ${trendAccuracy}%`;
+                })
+                .catch(error => console.error('Error fetching diagnostics data:', error));
+        }
+
+        // Initial update when the page loads
+        updateDiagnostics();
+
+        // Set an interval to update diagnostics data periodically
+        setInterval(updateDiagnostics, 1000); // Update every 1 seconds
+    </script>
+</body>
+</html>
